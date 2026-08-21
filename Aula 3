@@ -1,0 +1,275 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMRMEdxE7k76iCHBm235BO6",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Samuel-1302/Teste-de-software/blob/main/Aula%203\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 149,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "cyBigwKnN8M_",
+        "outputId": "523d9a79-6512-404e-c9fb-f2ea5e652604"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Overwriting sistema.py\n"
+          ]
+        }
+      ],
+      "source": [
+        "%%writefile sistema.py\n",
+        "def adicionar_item(carrinho, nome, preco, quantidade):\n",
+        "  \"\"\"Adiciona um item ao carrinho e retorna o carrinho atualizado.\"\"\"\n",
+        "  item = {\"nome\": nome, \"preco\": preco, \"quantidade\": quantidade}\n",
+        "  carrinho.append(item)\n",
+        "  return carrinho\n",
+        "\n",
+        "def calcular_total(carrinho):\n",
+        "  \"\"\"Retorna o valor total do carrinho (soma de preco * quantidade).\"\"\"\n",
+        "  total = 0\n",
+        "  for item in carrinho:\n",
+        "    total += item[\"preco\"] * item[\"quantidade\"]\n",
+        "  return round(total, 2)\n",
+        "\n",
+        "def tem_frete_gratis(valor_total):\n",
+        "  \"\"\"Retorna True se o valor total for >= 150.00.\"\"\"\n",
+        "  return valor_total >= 150.00"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "%%writefile test_sistema.py\n",
+        "from sistema import adicionar_item, calcular_total, tem_frete_gratis\n",
+        "def test_adicionar_item_adiciona_ao_carrinho():\n",
+        "# Arrange (Organizar dados, iniciar variáveis, ...)\n",
+        "  carrinho = []\n",
+        "# Act (chamada à função a ser testada)\n",
+        "  resultado = adicionar_item(carrinho, \"Caneca\", 25.0, 2)\n",
+        "# Assert (Verificação da saída)\n",
+        "  assert len(carrinho) == 1, \"O carrinho deve ter exatamente 1 item após a inserção\"\n",
+        "  assert carrinho[0][\"nome\"] == 'Caneca'\n",
+        "\n",
+        "def testar_adicionar_itens_existentes():\n",
+        "  carrinho = []\n",
+        "\n",
+        "  item1 = adicionar_item(carrinho, 'mouse',50.0,1)\n",
+        "  item2 = adicionar_item(carrinho, 'teclado', 80.0,1)\n",
+        "\n",
+        "  assert len(carrinho) == 2\n",
+        "\n",
+        "def test_adicionar_item_com_quantidade_zero():\n",
+        "\n",
+        "  carrinho = []\n",
+        "  resultado = adicionar_item(carrinho, \"Brinde\",10.0,0)\n",
+        "  assert resultado[0][\"quantidade\"] == 0,\\\n",
+        "    \"A função aceita quantidade zero sem validar - vale discutir se deveria\"\n",
+        "\n",
+        "\n",
+        "def test_calcular_total_carrinho_vazio_retornar_zero():\n",
+        "  carrinho = []\n",
+        "  total = calcular_total(carrinho)\n",
+        "  assert total == 0\n",
+        "\n",
+        "def test_calcular_total_um_item():\n",
+        "\n",
+        "  carrinho = [{\"nome\": \"Livro\", \"preco\":40.0, \"quantidade\":1}]\n",
+        "  total = calcular_total(carrinho)\n",
+        "  assert total == 40.0, \"O total deve ser igual ao preço do único item\"\n",
+        "\n",
+        "\n",
+        "def test_calcular_total_multiplos_itens():\n",
+        "\n",
+        "  carrinho = [\n",
+        "    {\"nome\": \"Livro\", \"preco\":40.0, \"quantidade\":1},\n",
+        "    {\"nome\": \"Caneca\", \"preco\":25.0, \"quantidade\":2}\n",
+        "  ]\n",
+        "  total = calcular_total(carrinho)\n",
+        "  assert total == 90.0, \"25*2 + 40*1 deve ser 90.0\"\n",
+        "\n",
+        "\n",
+        "def test_tem_frete_gratis_valor_abaixo_do_limite():\n",
+        "\n",
+        "  valor_total = 100.0\n",
+        "  resultado = tem_frete_gratis(valor_total)\n",
+        "  assert resultado is False, \"Valor abaixo de 150.00 não deve ter frete grátis\"\n",
+        "\n",
+        "def test_tem_frete_gratis_valor_acima_do_limite():\n",
+        "\n",
+        "  valor_total = 200.0\n",
+        "  resultado = tem_frete_gratis(valor_total)\n",
+        "  assert resultado is True, \"Valor acima de 150.00 deve ter frete grátis\"\n",
+        "\n",
+        "def test_tem_frete_gratis_valor_extamente_no_limite():\n",
+        "\n",
+        "  valor_total = 150.0\n",
+        "  resultado = tem_frete_gratis(valor_total)\n",
+        "  assert resultado is True, \\\n",
+        "     \"Valor igual a 150.00 deve ter frete grátis, pois a regra usa >=(maior ou igual)\"\n",
+        "\n",
+        ""
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "C2qwdH5LOgb8",
+        "outputId": "65ba010f-3b7f-4fe3-9986-8e6cd40cd6a4"
+      },
+      "execution_count": 150,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Overwriting test_sistema.py\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install -q pytest"
+      ],
+      "metadata": {
+        "id": "YO4bkI4UPmpW"
+      },
+      "execution_count": 151,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pytest --version"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "95Z_VaI8V-La",
+        "outputId": "cc20b17f-15d1-40d4-9d43-01e9b469d435"
+      },
+      "execution_count": 152,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "pytest 8.4.2\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "Zdyibv-NWM0u"
+      },
+      "execution_count": 152,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pytest test_sistema.py"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4MKr0nTXQsEJ",
+        "outputId": "4f51a3fa-f727-433e-a22b-10f154a97421"
+      },
+      "execution_count": 153,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[1m============================= test session starts ==============================\u001b[0m\n",
+            "platform linux -- Python 3.12.13, pytest-8.4.2, pluggy-1.6.0\n",
+            "rootdir: /content\n",
+            "plugins: typeguard-4.6.0, langsmith-0.11.0, anyio-4.14.2\n",
+            "\u001b[1mcollecting ... \u001b[0m\u001b[1m\rcollected 9 items                                                              \u001b[0m\n",
+            "\n",
+            "test_sistema.py \u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m                                                [100%]\u001b[0m\n",
+            "\n",
+            "\u001b[32m============================== \u001b[32m\u001b[1m9 passed\u001b[0m\u001b[32m in 0.03s\u001b[0m\u001b[32m ===============================\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pytest test_sistema.py -v"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "VDCrRpPopHLW",
+        "outputId": "c00bf4cf-ca2a-4c41-8ccb-e0b99ecf31a8"
+      },
+      "execution_count": 154,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[1m============================= test session starts ==============================\u001b[0m\n",
+            "platform linux -- Python 3.12.13, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3\n",
+            "cachedir: .pytest_cache\n",
+            "rootdir: /content\n",
+            "plugins: typeguard-4.6.0, langsmith-0.11.0, anyio-4.14.2\n",
+            "\u001b[1mcollecting ... \u001b[0m\u001b[1m\rcollected 9 items                                                              \u001b[0m\n",
+            "\n",
+            "test_sistema.py::test_adicionar_item_adiciona_ao_carrinho \u001b[32mPASSED\u001b[0m\u001b[32m         [ 11%]\u001b[0m\n",
+            "test_sistema.py::testar_adicionar_itens_existentes \u001b[32mPASSED\u001b[0m\u001b[32m                [ 22%]\u001b[0m\n",
+            "test_sistema.py::test_adicionar_item_com_quantidade_zero \u001b[32mPASSED\u001b[0m\u001b[32m          [ 33%]\u001b[0m\n",
+            "test_sistema.py::test_calcular_total_carrinho_vazio_retornar_zero \u001b[32mPASSED\u001b[0m\u001b[32m [ 44%]\u001b[0m\n",
+            "test_sistema.py::test_calcular_total_um_item \u001b[32mPASSED\u001b[0m\u001b[32m                      [ 55%]\u001b[0m\n",
+            "test_sistema.py::test_calcular_total_multiplos_itens \u001b[32mPASSED\u001b[0m\u001b[32m              [ 66%]\u001b[0m\n",
+            "test_sistema.py::test_tem_frete_gratis_valor_abaixo_do_limite \u001b[32mPASSED\u001b[0m\u001b[32m     [ 77%]\u001b[0m\n",
+            "test_sistema.py::test_tem_frete_gratis_valor_acima_do_limite \u001b[32mPASSED\u001b[0m\u001b[32m      [ 88%]\u001b[0m\n",
+            "test_sistema.py::test_tem_frete_gratis_valor_extamente_no_limite \u001b[32mPASSED\u001b[0m\u001b[32m  [100%]\u001b[0m\n",
+            "\n",
+            "\u001b[32m============================== \u001b[32m\u001b[1m9 passed\u001b[0m\u001b[32m in 0.02s\u001b[0m\u001b[32m ===============================\u001b[0m\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
